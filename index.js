@@ -1,6 +1,8 @@
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
+app.use(morgan('tiny'))
 
 let notes = [
     { 
@@ -85,6 +87,13 @@ app.delete("/api/persons/:id", (req, res) => {
 app.get("/info", (req, res) => {
     res.send(`<p>Phonebook has info for ${notes.length} people</p><p>${new Date()}</p>`)
 });
+
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+  
+app.use(unknownEndpoint)
 
 
 const PORT = 3001;

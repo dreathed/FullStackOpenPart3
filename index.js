@@ -2,7 +2,29 @@ const express = require('express');
 const morgan = require('morgan');
 
 const app = express();
-app.use(morgan('tiny'))
+app.use(express.json());
+
+app.use(morgan(function (tokens, req, res) {
+    if(tokens.method(req, res) === "POST"){
+        return [
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            tokens.res(req, res, 'content-length'), '-',
+            tokens['response-time'](req, res), 'ms',
+            JSON.stringify(req.body)
+          ].join(' ')
+    }
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms'
+      ].join(' ')
+  }))
+
+
 
 let notes = [
     { 
@@ -27,7 +49,7 @@ let notes = [
     }
 ]
 
-app.use(express.json())
+
 
 app.get("/api/persons", (req, res) => {
     res.json(notes);
@@ -60,7 +82,7 @@ function createMissingErrorMessage(note){
 
 app.post("/api/persons", (req, res) => {
     let newId = String(Math.floor(Math.random()*1000000));
-    let note = req.body;
+    let note = JSON.parse(JSON.stringify(req.body));
     if(!note.name || !note.number){
         return res.status(400).json({
             error: createMissingErrorMessage(note)

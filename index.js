@@ -25,6 +25,8 @@ let notes = [
     }
 ]
 
+app.use(express.json())
+
 app.get("/api/persons", (req, res) => {
     res.json(notes);
 });
@@ -38,6 +40,14 @@ app.get("/api/persons/:id", (req, res) => {
         return res.status(404).end();
     }
 });
+
+app.post("/api/persons", (req, res) => {
+    let newId = String(Math.floor(Math.random()*1000000));
+    let note = req.body;
+    note.id = newId;
+    notes.push(note);
+    res.json(note);
+})
 
 app.delete("/api/persons/:id", (req, res) => {
     let id = req.params.id;

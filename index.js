@@ -41,9 +41,36 @@ app.get("/api/persons/:id", (req, res) => {
     }
 });
 
+function createMissingErrorMessage(note){
+    let message = "";
+    if(!note.name){
+        message = "name ";
+    }
+    if(!note.number){
+        if(!note.name){
+            message += "and "
+        }
+        message += "number ";
+    }
+    message += "missing."
+    return message;
+}
+
 app.post("/api/persons", (req, res) => {
     let newId = String(Math.floor(Math.random()*1000000));
     let note = req.body;
+    if(!note.name || !note.number){
+        return res.status(400).json({
+            error: createMissingErrorMessage(note)
+        })
+    }
+
+    if(notes.find((elem) => elem.name === note.name)){
+        return res.status(400).json({
+            error: 'Entry already exists!'
+        })
+    }
+
     note.id = newId;
     notes.push(note);
     res.json(note);
